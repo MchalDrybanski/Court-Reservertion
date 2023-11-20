@@ -4,37 +4,31 @@ import java.util.*;
 
 public class Form {
     private int numberOfPeople;
-    private List<Integer> choosenDays = new ArrayList<>();
-    private Map<String, Integer> votingMember = new HashMap<>();
+    private Map<String, List<Integer>> votingMember = new HashMap<>();
 
-    public Map<String, Integer> getVotingMember() {
-        return votingMember;
+
+    public Form(int numberOfPeople) {
+        this.numberOfPeople = numberOfPeople;
     }
 
-    public void setVotingMember(Map<String, Integer> votingMember) {
+    public Form() {
+
+    }
+
+    public Form(Map<String, List<Integer>> votingMember) {
         this.votingMember = votingMember;
     }
 
-    public Form(int numberOfPeople){
-        this.numberOfPeople = numberOfPeople;
-    }
-    public Form(){
 
-    }
-
-    public Form(List<Integer> choosenDays) {
-        this.choosenDays = choosenDays;
-    }
-
-    public void start(){
+    public void collectVotes() {
         Scanner scanner = new Scanner(System.in);
 
-        for(int i = 0; i < numberOfPeople; i++){
-            List<Integer> onePersonChosenDays = new ArrayList<>();
+        for (int i = 0; i < numberOfPeople; i++) {
+            List<Integer> onePersonChosenDaysIndexes = new ArrayList<>();
             printMassege("Podaj imie osoby glosujacej: ");
             String name = scanner.next();
-
-            while(true){
+            votingMember.put(name, onePersonChosenDaysIndexes);
+            while (true) {
                 printMassege("Wybierz odpowiedni dla Ciebie dzien w tygodniu od poniedzialku do piatku.\n" +
                         "1 - Poniedzialek\n" +
                         "2 - Wtorek\n" +
@@ -43,97 +37,91 @@ public class Form {
                         "5 - Piatek\n" +
                         "6 - Zakoncz wybieranie");
                 int choice = scanner.nextInt();
-                if(onePersonChosenDays.contains(choice)){
+                if (onePersonChosenDaysIndexes.contains(choice)) {
                     printMassege("Ten dzien zostal juz wybrany.");
                     continue;
                 }
-                if(choice >= 1 && choice <= 5){
-                    onePersonChosenDays.add(choice);
-                    choosenDays.add(choice);
-                    votingMember.put(name, choice);
-                }else if(choice == 6){
+                if (choice >= 1 && choice <= 5) {
+                    onePersonChosenDaysIndexes.add(choice-1);
+                } else if (choice == 6) {
                     break;
                 }
             }
         }
     }
-    public void printMassege(String message){
+
+    public void printMassege(String message) {
         System.out.println(message);
     }
 
-    public void printMembersVotes(){
-        for(Map.Entry<String, Integer> votes : votingMember.entrySet()){
-            int day = votes.getValue();
-            String converToDay = convertToDayName(day);
-            System.out.println(votes.getKey() + " zaglosowal/a na " + converToDay);
+    public void printMembersVotes() {
+        for (Map.Entry<String, List<Integer>> votes : votingMember.entrySet()) {
+            List<Integer> dayIndexes = votes.getValue();
+            printMassege(votes.getKey() + " zaglosowal/a na: " );
+            for(Integer day : dayIndexes){
+                printMassege(convertToDayName(day));//todo zmienic na wyswietlanie w jednej lini
+            }
         }
     }
-    public String convertToDayName(int day){
-        switch (day){
-            case 1:
+
+    private String convertToDayName(int day) {
+        switch (day) {
+            case 0:
                 return "Poniedziałek";
-            case 2:
+            case 1:
                 return "Wtorek";
-            case 3:
+            case 2:
                 return "Środa";
-            case 4:
+            case 3:
                 return "Czwartek";
-            case 5:
+            case 4:
                 return "Piątek";
             default:
                 return "Nieprawidłowy dzień";
         }
     }
+
     public int[] countVotesPerDay() {
-        int votesPerDay [] = new int[5];
-        for(int day = 1; day<=5; day++){
+        int votesPerDay[] = new int[5];
+        for (int day = 0; day < votesPerDay.length; day++) {
             int counterOfVotes = 0;
-            for (Integer compareNumber : choosenDays) {
+            for (Integer compareNumber : countChosenDays()) {
                 if (compareNumber.equals(day)) {
                     counterOfVotes++;
                 }
             }
-           votesPerDay[day-1] = counterOfVotes;
+            votesPerDay[day] = counterOfVotes;
         }
+        System.out.println(Arrays.toString(votesPerDay));
         return votesPerDay;
     }
-    public int findMaxVotesDay(int [] days){
+
+    private List<Integer> countChosenDays(){
+        List<Integer> chosenDays = new ArrayList<>();
+        for(List<Integer> votes : votingMember.values()){
+            chosenDays.addAll(votes);
+        }
+        return chosenDays;
+    }
+
+    public int findMaxVotesDay(int[] days) {
         int mostVotes = days[0];
         int day = 0;
-        for(int i = 0; i < days.length; i++){
-            if(mostVotes < days[i]){
+        for (int i = 0; i < days.length; i++) {
+            if (mostVotes < days[i]) {
                 mostVotes = days[i];
                 day = i;
             }
-    }
+        }
         return day;
     }
 
-    public void print(int day, int [] tab){
-        String dayName;
-        switch (day){
-            case 0:
-                dayName = "Poniedziałek";
-                break;
-            case 1:
-                dayName = "Wtorek";
-                break;
-            case 2:
-                dayName = "Środa";
-                break;
-            case 3:
-                dayName = "Czwartek";
-                break;
-            case 4:
-                dayName = "Piątek";
-                break;
-            default:
-                dayName = "Brak wyboru";
-        }
+    public void printReport(int day, int[] tab) {
+        String dayName = convertToDayName(day);
         System.out.println("Najwiecej glosow ma dzien: " + dayName);
         System.out.println("Głosów: " + tab[day]);
-        if(tab[day] < 8){
+        if (tab[day] < 8) {
             System.out.println("Nie ma wystarczajoco osob na ten dzien.");
-        }else System.out.println("Wybrany dzien to " + dayName);
+        } else System.out.println("Wybrany dzien to " + dayName);
     }
 }
