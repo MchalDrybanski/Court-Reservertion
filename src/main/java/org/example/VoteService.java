@@ -2,20 +2,20 @@ package org.example;
 
 import java.util.*;
 
-public class Form {
+public class VoteService {
     private int numberOfPeople;
     private Map<String, List<Integer>> votingMember = new HashMap<>();
 
 
-    public Form(int numberOfPeople) {
+    public VoteService(int numberOfPeople) {
         this.numberOfPeople = numberOfPeople;
     }
 
-    public Form() {
+    public VoteService() {
 
     }
 
-    public Form(Map<String, List<Integer>> votingMember) {
+    public VoteService(Map<String, List<Integer>> votingMember) {
         this.votingMember = votingMember;
     }
 

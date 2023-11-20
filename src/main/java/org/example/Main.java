@@ -21,12 +21,13 @@ public class Main {
         ));
 
         //Form form = new Form(votes);
-        Form form = new Form(3);
-        form.collectVotes();
-        int[] days = form.countVotesPerDay();
-        form.printMembersVotes();
-        int maxDayIndex = form.findMaxVotesDay(days);
-        form.printReport(maxDayIndex,days);
+        VoteService voteService = new VoteService(3);
+        voteService.collectVotes();
+        int[] days = voteService.countVotesPerDay();
+        voteService.printMembersVotes();
+        int maxDayIndex = voteService.findMaxVotesDay(days);
+        voteService.printReport(maxDayIndex,days);
+        Payments payments = new Payments(voteService);
 
 //        Form form = new Form(15);//todo ile osób ma głosować?
 //        form.collectVotes();
