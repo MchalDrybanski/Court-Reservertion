@@ -6,22 +6,21 @@ import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
-
-        Map<String, List<Integer>> votes = new HashMap<>(Map.of(
-                "Jan",List.of(0,1,2,3,4),
-                "Ania",List.of(1,5),
-                "Andrzej",List.of(1),
-                "Kamil",List.of(1),
-                "Wojtek",List.of(2,1),
-                "Paulina", List.of(5,1),
-                "Marcin", List.of(4,1),
-                "Karolina",List.of(3,1),
-                "Dominika",List.of(0,1),
-                "Szymon",List.of()
-             //   "Ula", List.of(4,1)
+        List<Person> list = new ArrayList<>(List.of(
+                new Person("Michal", List.of(1,2,3,4)),
+                new Person("Adam", List.of(0,1)),
+                new Person("Michal D", List.of(0,1)),
+                new Person("Andrzej", List.of(0,1)),
+                new Person("Dominika", List.of(0,1,3)),
+                new Person("Karolina", List.of(0,1,4)),
+                new Person("Pawel", List.of(0,1,3)),
+                new Person("Pawel D", List.of(0,1,3)),
+                new Person("Kamil K", List.of(0,1)),
+                new Person("Kamil P", List.of())
         ));
 
-        VoteService voteService = new VoteService(votes);
+        VoteService voteService = new VoteService(list);
+        System.out.println(voteService);
         //VoteService voteService = new VoteService(3);
         voteService.collectVotes();
         int[] days = voteService.countVotesPerDay();
@@ -33,9 +32,9 @@ public class Main {
         System.out.println("-------------");
         voteService.printMembersWhoNotVoted();
         Payments payments = new Payments(voteService);
-       // payments.printList(voteService);
-        //payments.addPersonWhoPaid(4);
-       // payments.printListOfPeopleWhoPaid();
+        payments.printEveryone();
+        payments.addPersonWhoPaid(4);
+        payments.printListOfPeopleWhoPaid();
 
 
 

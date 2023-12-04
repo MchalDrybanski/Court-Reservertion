@@ -4,13 +4,14 @@ import java.util.*;
 
 public class VoteService {
     private int numberOfPeople;
-    private Map<String, List<Integer>> votingMember = new HashMap<>();
+    private List<Person> people = new ArrayList<>();
     public VoteService(int numberOfPeople) {
         this.numberOfPeople = numberOfPeople;
     }
     public VoteService() {}
-    public VoteService(Map<String, List<Integer>> votingMember) {this.votingMember = votingMember;}
-
+    public VoteService(List<Person> people) {
+        this.people = people;
+    }
 
     public void collectVotes() {
         Scanner scanner = new Scanner(System.in);
@@ -19,7 +20,7 @@ public class VoteService {
             List<Integer> onePersonChosenDaysIndexes = new ArrayList<>();
             printMassege("Podaj imie osoby glosujacej: ");
             String name = scanner.next();
-            votingMember.put(name, onePersonChosenDaysIndexes);
+
             while (true) {
                 printMassege("Wybierz odpowiedni dla Ciebie dzien w tygodniu od poniedzialku do piatku.\n" +
                         "1 - Poniedzialek\n" +
@@ -39,38 +40,36 @@ public class VoteService {
                     break;
                 }
             }
+            people.add(new Person(name, onePersonChosenDaysIndexes));
         }
     }
-    private ArrayList<String> listOfPeopleNotVoted() {
-        ArrayList<String> names = new ArrayList<>();
+    private List<String> listOfPeopleNotVoted() {
+        List<String> names = new ArrayList<>();
 
-        for (Map.Entry<String, List<Integer>> entry : votingMember.entrySet()) {
-            List<Integer> onePersonChosenDaysIndexes = entry.getValue();
-
-            if (onePersonChosenDaysIndexes == null || onePersonChosenDaysIndexes.isEmpty()) {
-                names.add(entry.getKey());
+        for (Person person : people) {
+            if (!person.hasVoted()) {
+                names.add(person.getFullName());
             }
         }
 
         sortList(names);
         return names;
     }
-    private ArrayList<String> whoVotedForWinningDay(){
+    private List<String> whoVotedForWinningDay(){
         int [] votesPerDay = countVotesPerDay();
         int winningDay = findMaxVotesDay(votesPerDay);
 
-        ArrayList<String> listOfPeopleVotingWinnerDay = new ArrayList<>();
+        List<String> listOfPeopleVotingWinnerDay = new ArrayList<>();
 
-        for(Map.Entry<String, List<Integer>> votes : votingMember.entrySet()){
-            List<Integer> dayIndexes = votes.getValue();
-            if(dayIndexes.contains(winningDay)){
-                listOfPeopleVotingWinnerDay.add(votes.getKey());
+        for(Person person : people){
+            if(person.hasVotedForDay(winningDay)){
+                listOfPeopleVotingWinnerDay.add(person.getFullName());
             }
         }
         sortList(listOfPeopleVotingWinnerDay);
         return listOfPeopleVotingWinnerDay;
     }
-    private void sortList (ArrayList<String> listToSort){
+    private void sortList (List<String> listToSort){
         Collections.sort(listToSort);
     }
     public int findMaxVotesDay(int[] days) {
@@ -99,8 +98,8 @@ public class VoteService {
     }
     private List<Integer> countChosenDays(){
         List<Integer> chosenDays = new ArrayList<>();
-        for(List<Integer> votes : votingMember.values()){
-            chosenDays.addAll(votes);
+        for(Person person : people){
+            chosenDays.addAll(person.getVotedDays());
         }
         return chosenDays;
     }
@@ -114,13 +113,13 @@ public class VoteService {
         } else System.out.println("Wybrany dzien to " + dayName);
     }
     public void printMembersWhoNotVoted(){
-        ArrayList<String> notVoted = listOfPeopleNotVoted();
+        List<String> notVoted = listOfPeopleNotVoted();
         for(String notVot : notVoted){
             printMassege(notVot);
         }
     }
     public void printMembersWhoVotedWinningDay(){
-        ArrayList<String> winners = whoVotedForWinningDay();
+        List<String> winners = whoVotedForWinningDay();
         for(String win : winners){
             printMassege(win);
         }
@@ -130,9 +129,9 @@ public class VoteService {
     }
 
     public void printMembersVotes() {
-        for (Map.Entry<String, List<Integer>> votes : votingMember.entrySet()) {
-            List<Integer> dayIndexes = votes.getValue();
-            StringBuilder sb = new StringBuilder(votes.getKey() + " zaglosowal/a na: ");
+        for (Person person : people) {
+            List<Integer> dayIndexes = person.getVotedDays();
+            StringBuilder sb = new StringBuilder(person.getFullName() + " zaglosowal/a na: ");
             int i = 0;
             for(Integer day : dayIndexes){
                 sb.append(convertToDayName(day));//todo: DONE zmienic na wyswietlanie w jednej lini
@@ -159,11 +158,18 @@ public class VoteService {
                 return "Nieprawidłowy dzień";
         }
     }
-    public ArrayList<String> getMemberList(){
-        ArrayList<String> memberList = new ArrayList<>();
-        for (Map.Entry<String, List<Integer>> votes : votingMember.entrySet()){
-            memberList.add(votes.getKey());
+    public List<String> getMemberList(){
+        List<String> memberList = new ArrayList<>();
+        for (Person person : people){
+            memberList.add(person.getFullName());
         }
         return memberList;
+    }
+
+    @Override
+    public String toString() {
+        return "VoteService{" +
+                "people=" + people +
+                '}';
     }
 }
